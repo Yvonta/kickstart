@@ -1,1 +1,3 @@
 clang -fobjc-arc kickstart.m -framework Cocoa -framework QuartzCore -o kickstart
+
+clang kickstart.c -o kickstart $(pkg-config --cflags --libs gtk+-3.0)
