@@ -86,8 +86,8 @@
     [window orderBack:nil];
     
     [window setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces | 
-                                   NSWindowCollectionBehaviorStationary | 
-                                   NSWindowCollectionBehaviorIgnoresCycle];
+                                  NSWindowCollectionBehaviorStationary | 
+                                  NSWindowCollectionBehaviorIgnoresCycle];
 
     [window setBackgroundColor:[NSColor colorWithCalibratedWhite:0.15 alpha:0.0]];
     [window setOpaque:NO];
@@ -108,7 +108,10 @@
     [logoButton setAction:@selector(openUrl:)];
     [logoButton setWantsLayer:YES];
     
-    NSImage *logoImage = [[NSImage alloc] initWithContentsOfFile:@"logo.png"];
+    // FIXED: Properly look up logo.png using the app bundle path
+    NSString *logoPath = [[NSBundle mainBundle] pathForResource:@"logo" ofType:@"png"];
+    NSImage *logoImage = logoPath ? [[NSImage alloc] initWithContentsOfFile:logoPath] : nil;
+    
     if (logoImage) {
         [logoButton setImage:logoImage];
     } else {
