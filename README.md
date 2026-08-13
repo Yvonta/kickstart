@@ -21,7 +21,7 @@ This project is released under the **CC0 1.0 Universal (Public Domain)** license
 
 ## Compilation Instructions
 
-Ensure you save the source code into a file named `kickstart.c` before running the compilation commands below[cite: 1].
+Ensure you save the source code into a file named `kickstart.c` before running the compilation commands below.
 
 ### macOS
 
@@ -29,12 +29,12 @@ Requires Xcode Command Line Tools to be installed.
 
 ```bash
 clang -x objective-c -fobjc-arc kickstart.c -framework Cocoa -framework WebKit -o kickstart
-```[cite: 1]
+```
 
 ### Linux
 
-Requires `clang`, `gtk+-3.0`, and `webkit2gtk` development packages to be installed[cite: 1].
+Requires `clang`, `gtk+-3.0`, and `webkit2gtk` development packages to be installed.
 
 ```bash
 clang kickstart.c -o kickstart $(pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.1)
-```[cite: 1]
+```
