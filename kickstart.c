@@ -1,6 +1,6 @@
 #ifdef __APPLE__
 // ==========================================
-// macOS Implementation (Objective-C)
+// macOS Implementation (Pure Objective-C)
 // ==========================================
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
@@ -51,17 +51,21 @@
     }
 }
 
+// --- WKNavigationDelegate: Vang normale links af en open ze extern ---
 - (void)webView:(WKWebView *)view decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     NSURL *url = navigationAction.request.URL;
+    
     if (navigationAction.navigationType == WKNavigationTypeLinkActivated || 
         (navigationAction.targetFrame == nil && url != nil)) {
         [[NSWorkspace sharedWorkspace] openURL:url];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
+    
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
+// --- WKUIDelegate: Vang target="_blank" en window.open pop-ups af en open ze extern ---
 - (WKWebView *)webView:(WKWebView *)view createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures {
     NSURL *url = navigationAction.request.URL;
     if (url != nil) {
@@ -79,8 +83,8 @@
                                                    backing:NSBackingStoreBuffered
                                                      defer:NO];
     
-    [window setLevel:kCGDesktopWindowLevel - 1];
-    [window setCollectionBehavior:NSWindowCollectionBehaviorStationary | NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorIgnoresCycle];
+    [window setLevel:NSNormalWindowLevel];
+    [window setCollectionBehavior:NSWindowCollectionBehaviorStationary | NSWindowCollectionBehaviorCanJoinAllSpaces];
     [window setOpaque:NO];
     [window setBackgroundColor:[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:0.0 alpha:0.0]];
     [window setHasShadow:NO];
@@ -92,12 +96,14 @@
     [content setWantsLayer:YES];
     [content.layer setBackgroundColor:[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:0.0 alpha:0.0].CGColor];
     
+    // --- Toolbar Container ---
     NSView *container = [[NSView alloc] initWithFrame:NSMakeRect(0, AD_HEIGHT, WINDOW_WIDTH, TOOLBAR_HEIGHT)];
     [container setWantsLayer:YES];
     [container.layer setBackgroundColor:[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:0.0 alpha:0.0].CGColor];
     [container.layer setCornerRadius:8.0];
     [content addSubview:container];
     
+    // Logo Button
     NSButton *logoButton = [[NSButton alloc] initWithFrame:NSMakeRect(5, 5, 30, 30)];
     [logoButton setButtonType:NSButtonTypeMomentaryChange];
     [logoButton setBordered:NO];
@@ -109,6 +115,7 @@
         logoPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:@"logo.png"];
     }
     NSImage *logoImage = [[NSImage alloc] initWithContentsOfFile:logoPath];
+
     if (logoImage) {
         [logoImage setSize:NSMakeSize(24, 24)];
         [logoButton setImage:logoImage];
@@ -118,12 +125,14 @@
     }
     [container addSubview:logoButton];
 
+    // Text Input Field
     textInput = [[NSTextField alloc] initWithFrame:NSMakeRect(40, 8, 373, 24)];
     [[textInput cell] setPlaceholderString:@"Ask Yvonta..."];
     [textInput setTarget:self];
     [textInput setAction:@selector(submitQuery:)];
     [container addSubview:textInput];
 
+    // GO! Button
     NSButton *goButton = [[NSButton alloc] initWithFrame:NSMakeRect(421, 6, 40, 28)];
     [goButton setTitle:@"GO!"];
     [goButton setButtonType:NSButtonTypeMomentaryLight];
@@ -132,14 +141,17 @@
     [goButton setAction:@selector(submitQuery:)];
     [container addSubview:goButton];
 
+    // --- Web Browser Ad Widget ---
     WKWebViewConfiguration *webConfig = [[WKWebViewConfiguration alloc] init];
     webView = [[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, WINDOW_WIDTH, AD_HEIGHT) configuration:webConfig];
     [webView setValue:@YES forKey:@"drawsBackground"];
+    
     webView.navigationDelegate = self;
     webView.UIDelegate = self;
 
     NSURL *adURL = [NSURL URLWithString:@"https://yvonta.ai/apppub/banners/kickstart.html"];
-    [webView loadRequest:[NSURLRequest requestWithURL:adURL]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:adURL];
+    [webView loadRequest:request];
     [content addSubview:webView];
 }
 @end
