@@ -1,5 +1,5 @@
 Mac:
-clang -x objective-c -fobjc-arc kickstart.c -framework Cocoa -o kickstart
+clang -x objective-c -fobjc-arc kickstart.c -framework Cocoa -framework WebKit -o kickstart
 
 Linux:
 clang kickstart.c -o kickstart $(pkg-config --cflags --libs gtk+-3.0)
