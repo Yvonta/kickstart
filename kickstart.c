@@ -44,12 +44,14 @@
                                                    backing:NSBackingStoreBuffered
                                                      defer:NO];
     
-    // Set window order to be at the lowest layer, right above the desktop background
-    [window setLevel:kCGDesktopWindowLevel];
+    // Use normal window level with stationary behavior to sit on the desktop layer interactively
+    [window setLevel:NSNormalWindowLevel];
+    [window setCollectionBehavior:NSWindowCollectionBehaviorStationary | NSWindowCollectionBehaviorCanJoinAllSpaces];
     [window setOpaque:NO];
     [window setBackgroundColor:[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:0.0 alpha:0.0]];
     [window setHasShadow:NO];
     [window setHidesOnDeactivate:NO];
+    [window setIgnoresMouseEvents:NO];
     [window makeKeyAndOrderFront:nil];
 
     // Root content view with explicit alpha 0.0 clear background
@@ -71,8 +73,14 @@
     [logoButton setTarget:self];
     [logoButton setAction:@selector(openUrl:)];
 
-    NSString *logoPath = [[NSFileManager defaultManager] currentDirectoryPath];
-    logoPath = [logoPath stringByAppendingPathComponent:@"logo.png"];
+    // Look for logo.png inside the app bundle's Resources directory
+    NSString *logoPath = [[NSBundle mainBundle] pathForResource:@"logo" ofType:@"png"];
+    
+    // Fallback to current working directory if not running from a bundled *.app
+    if (!logoPath) {
+        logoPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:@"logo.png"];
+    }
+    
     NSImage *logoImage = [[NSImage alloc] initWithContentsOfFile:logoPath];
 
     if (logoImage) {
@@ -169,7 +177,6 @@ static void activate(GtkApplication *app, gpointer user_data) {
     }
 
     GtkCssProvider *css = gtk_css_provider_new();
-    // Forces complete alpha 0.0 transparency across window and container box
     gtk_css_provider_load_from_data(css, "window, window.background { background-color: rgba(0,0,0,0.0); background-image: none; } .box { background-color: rgba(0,0,0,0.0); border-radius: 8px; padding: 5px; }", -1, NULL);
     gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
