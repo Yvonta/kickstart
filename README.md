@@ -38,5 +38,3 @@ Requires `clang`, `gtk+-3.0`, and `webkit2gtk` development packages to be instal
 ```bash
 clang kickstart.c -o kickstart $(pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.1)
 ```[cite: 1]
-
-```
